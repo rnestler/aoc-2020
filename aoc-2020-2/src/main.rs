@@ -41,10 +41,25 @@ impl Rule {
         let count = self.string.bytes().filter(|c| *c == self.letter).count();
         count >= self.range.min && count <= self.range.max
     }
+
+    pub fn is_valid_part_2(&self) -> bool {
+        let mut cnt = 0;
+        if self.string.bytes().nth(self.range.min - 1).unwrap() == self.letter {
+            cnt += 1;
+        }
+        if self.string.bytes().nth(self.range.max - 1).unwrap() == self.letter {
+            cnt += 1;
+        }
+        cnt == 1
+    }
 }
 
 fn part1(input: &str) -> usize {
     input.lines().map(Rule::from).filter(|rule| rule.is_valid()).count()
+}
+
+fn part2(input: &str) -> usize {
+    input.lines().map(Rule::from).filter(|rule| rule.is_valid_part_2()).count()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -54,6 +69,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let result_part1 = part1(&contents);
     println!("{}", result_part1);
+
+    let result_part2 = part2(&contents);
+    println!("{}", result_part2);
 
     Ok(())
 }
