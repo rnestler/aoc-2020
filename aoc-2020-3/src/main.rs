@@ -27,7 +27,7 @@ impl Map {
         self.trees[y][x]
     }
 
-    fn part_1(&self) -> usize {
+    fn check_slope(&self, dx: usize, dy: usize) -> usize {
         let mut x = 0;
         let mut y = 0;
         let mut tree_count = 0;
@@ -36,13 +36,24 @@ impl Map {
             if self.check_position(x, y) {
                 tree_count += 1;
             }
-            x += 3;
-            y += 1;
+            x += dx;
+            y += dy;
             if y >= self.trees.len() {
                 break;
             }
         }
         tree_count
+    }
+
+    fn part_1(&self) -> usize {
+        self.check_slope(3, 1)
+    }
+
+    fn part_2(&self) -> usize {
+        let slopes = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
+        slopes.iter().fold(1, |product, slope| {
+            product * self.check_slope(slope.0, slope.1)
+        })
     }
 }
 
@@ -53,5 +64,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let map = Map::from(contents.as_str());
     println!("part1: {}", map.part_1());
+    println!("part1: {}", map.part_2());
     Ok(())
 }
