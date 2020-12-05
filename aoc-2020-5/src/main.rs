@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-fn decode_seat(seat: &str) -> u32 {
+fn decode_seat(seat: &str) -> (u32, u32) {
     let mut row_upper = 127;
     let mut row_lower = 0;
     let mut col_upper = 7;
@@ -25,8 +25,11 @@ fn decode_seat(seat: &str) -> u32 {
             _ => unreachable!(),
         }
     }
+    (row_upper, col_upper)
+}
 
-    row_upper * 8 + col_upper
+fn get_seat_id(row: u32, col: u32) -> u32 {
+    row * 8 + col
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,9 +37,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let max_seat_id = contents.lines().map(decode_seat).max().unwrap();
+    let mut seat_ids: Vec<_> = contents
+        .lines()
+        .map(decode_seat)
+        .map(|(r, c)| get_seat_id(r, c))
+        .collect();
 
+    let max_seat_id = seat_ids.iter().max().unwrap();
     println!("Part 1: {}", max_seat_id);
+
+    seat_ids.sort();
+
+    for (i, seat) in seat_ids.iter().enumerate() {
+        if seat_ids[i + 1] - seat == 2 {
+            println!("Part 2: {}", seat + 1);
+            break;
+        }
+    }
 
     Ok(())
 }
@@ -47,7 +64,8 @@ mod tests {
     #[test]
     fn test_decode_seat() {
         let input = "FBFBBFFRLR";
-        let seat_id = decode_seat(input);
+        let (row, col) = decode_seat(input);
+        let seat_id = get_seat_id(row, col);
         assert_eq!(seat_id, 357);
     }
 }
