@@ -63,6 +63,37 @@ impl Machine {
         }
         self.pc
     }
+
+    pub fn try_run_to_end(&mut self) -> Option<i32> {
+        let mut visited = vec![0usize];
+        loop {
+            self.step();
+            if self.pc >= self.code.len() {
+                return Some(self.accumulator);
+            }
+            if visited.contains(&self.pc) {
+                return None;
+            }
+            visited.push(self.pc);
+        }
+    }
+
+    pub fn part_2(&self) {
+        for offset in 0..self.code.len() {
+            let patch = match self.code[offset] {
+                Instruction::Nop(arg) => Instruction::Jmp(arg),
+                Instruction::Jmp(arg) => Instruction::Nop(arg),
+                _ => continue,
+            };
+            let mut machine = Machine::new(self.code.clone());
+            machine.code[offset] = patch;
+
+            if let Some(acc) = machine.try_run_to_end() {
+                println!("Part 2: {}", acc);
+                break;
+            }
+        }
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -88,6 +119,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         visited.push(pc);
     }
+
+    machine.part_2();
 
     Ok(())
 }
