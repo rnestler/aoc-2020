@@ -19,17 +19,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     file.read_to_string(&mut contents)?;
 
     let lines = contents.lines();
+    let numbers: Vec<i64> = lines.map(|v| v.parse().unwrap()).collect();
 
-    let mut preamble: VecDeque<i64> = lines.clone().take(25).map(|v| v.parse().unwrap()).collect();
+    let mut preamble = VecDeque::<i64>::new();
+    preamble.extend(&numbers[0..25]);
 
-    for line in lines.skip(25) {
-        let number: i64 = line.parse().unwrap();
-        if !check_if_valid(&preamble, number) {
+    let mut part_1 = 0;
+    for number in numbers.iter().skip(25) {
+        if !check_if_valid(&preamble, *number) {
             println!("Part 1: {}", number);
+            part_1 = *number;
             break;
         }
         preamble.pop_front();
-        preamble.push_back(number);
+        preamble.push_back(*number);
+    }
+
+    for i in 0..numbers.len() {
+        let mut sum = 0;
+        let mut j = i;
+        while sum < part_1 {
+            sum += numbers[j];
+            if sum == part_1 {
+                let min = numbers[i..j].iter().min().unwrap();
+                let max = numbers[i..j].iter().max().unwrap();
+                println!("Part 2: {}", min + max);
+                return Ok(());
+            }
+            j += 1;
+        }
     }
 
     Ok(())
