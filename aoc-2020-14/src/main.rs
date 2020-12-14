@@ -74,6 +74,21 @@ impl Machine {
         }
     }
 
+    fn execute_instruction_part_2(&mut self, instruction: Instruction) {
+        match instruction {
+            Instruction::SetMask(bitmask_zeros, bitmask_ones) => {
+                self.bitmask_zeros = bitmask_zeros;
+                self.bitmask_ones = bitmask_ones;
+            },
+            Instruction::SetMemory(address, value) => {
+                let mem_value = self.memory.entry(address).or_insert(0);
+                *mem_value = value;
+                *mem_value &= self.bitmask_zeros;
+                *mem_value |= self.bitmask_ones;
+            }
+        }
+    }
+
     fn part_1(&mut self, instructions: &Vec<Instruction>) -> u64 {
         for instruction in instructions {
             self.execute_instruction(*instruction);
